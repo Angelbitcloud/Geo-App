@@ -13,8 +13,6 @@
 **/.npm/
 **/.yarn/
 
-# Lockfiles: MANTENER package-lock.json para reproducibilidad
-# NO ignorar: package-lock.json (necesario para prueba técnica)
 
 # ============================================
 # Python (python-service)
@@ -25,7 +23,7 @@
 **/*.so
 **/.Python
 
-# Virtual environments - CUALQUIER UBICACIÓN
+# Virtual environments 
 **/.venv/
 **/venv/
 **/env/
@@ -92,10 +90,8 @@ desktop.ini
 **/logs/
 
 # ============================================
-# Docker (opcional)
+# Docker 
 # ============================================
-# Si no quieres ignorar nada de Docker, comenta estas líneas
-# **/.dockerignore
 
 # ============================================
 # Cache & Temp
