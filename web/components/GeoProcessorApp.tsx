@@ -170,34 +170,54 @@ export default function GeoProcessorApp() {
         </section>
       )}
 
-      {state.result && (
-        <section className="card success">
-          <h2>Result</h2>
-          <div className="results-grid">
-            <div>
-              <h3>Centroid</h3>
-              <p>Lat: {state.result.centroid.lat.toFixed(6)}</p>
-              <p>Lng: {state.result.centroid.lng.toFixed(6)}</p>
-            </div>
-            <div>
-              <h3>Bounds</h3>
-              <p>North: {state.result.bounds.north.toFixed(6)}</p>
-              <p>South: {state.result.bounds.south.toFixed(6)}</p>
-              <p>East: {state.result.bounds.east.toFixed(6)}</p>
-              <p>West: {state.result.bounds.west.toFixed(6)}</p>
-            </div>
-          </div>
-        </section>
-      )}
-
       <section className="card">
         <h2>Map</h2>
         {state.result ? (
-          <MapView
-            points={pointsPreview ?? []}
-            centroid={state.result.centroid}
-            bounds={state.result.bounds}
-          />
+          <>
+            <MapView
+              points={pointsPreview ?? []}
+              centroid={state.result.centroid}
+              bounds={state.result.bounds}
+            />
+            
+            {/* Results Section Below Map */}
+            <div className="results-container">
+              <div className="result-block">
+                <h3>Centroid</h3>
+                <div className="result-items">
+                  <div className="result-item">
+                    <span className="result-label">Lat:</span>
+                    <span className="result-value">{state.result.centroid.lat.toFixed(6)}</span>
+                  </div>
+                  <div className="result-item">
+                    <span className="result-label">Lng:</span>
+                    <span className="result-value">{state.result.centroid.lng.toFixed(6)}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="result-block">
+                <h3>Bounds</h3>
+                <div className="result-items bounds-grid">
+                  <div className="result-item">
+                    <span className="result-label">North:</span>
+                    <span className="result-value">{state.result.bounds.north.toFixed(6)}</span>
+                  </div>
+                  <div className="result-item">
+                    <span className="result-label">South:</span>
+                    <span className="result-value">{state.result.bounds.south.toFixed(6)}</span>
+                  </div>
+                  <div className="result-item">
+                    <span className="result-label">East:</span>
+                    <span className="result-value">{state.result.bounds.east.toFixed(6)}</span>
+                  </div>
+                  <div className="result-item">
+                    <span className="result-label">West:</span>
+                    <span className="result-value">{state.result.bounds.west.toFixed(6)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
         ) : (
           <div className="map-container" aria-hidden>
             <p style={{ padding: "1rem" }}>Process a set of points to visualize the map.</p>
