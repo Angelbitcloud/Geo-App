@@ -3,8 +3,14 @@
 import { useCallback, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { MapViewProps } from "./MapView";
+import PointInputForm from "./PointInputForm";
 
 interface ApiResponse extends MapViewProps {}
+
+interface Point {
+  lat: number;
+  lng: number;
+}
 
 interface FormState {
   rawPoints: string;
@@ -63,7 +69,35 @@ export default function GeoProcessorApp() {
 
   const pointsPreview = useMemo(() => parsePoints(state.rawPoints), [state.rawPoints]);
 
-  const handleSubmit = useCallback(
+  const processPoints = useCallback(async (points: Point[]) => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+
+    try {
+      const response = await fetch(`${API_URL}/geo/process`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ points }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        const message = payload?.detail ?? payload?.message ?? "Unknown error";
+        throw new Error(typeof message === "string" ? message : JSON.stringify(payload));
+      }
+
+      const payload = (await response.json()) as ApiResponse;
+      setState((prev) => ({ ...prev, result: payload, loading: false }));
+    } catch (error) {
+      console.error("Error calling gateway", error);
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      }));
+    }
+  }, []);
+
+  const handleSubmitJSON = useCallback(
     async () => {
       if (!state.rawPoints.trim()) {
         setState((prev) => ({
@@ -81,33 +115,9 @@ export default function GeoProcessorApp() {
         return;
       }
 
-      setState((prev) => ({ ...prev, loading: true, error: null }));
-
-      try {
-        const response = await fetch(`${API_URL}/geo/process`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ points: pointsPreview }),
-        });
-
-        if (!response.ok) {
-          const payload = await response.json().catch(() => ({}));
-          const message = payload?.detail ?? payload?.message ?? "Unknown error";
-          throw new Error(typeof message === "string" ? message : JSON.stringify(payload));
-        }
-
-        const payload = (await response.json()) as ApiResponse;
-        setState((prev) => ({ ...prev, result: payload, loading: false }));
-      } catch (error) {
-        console.error("Error calling gateway", error);
-        setState((prev) => ({
-          ...prev,
-          loading: false,
-          error: error instanceof Error ? error.message : "Unknown error",
-        }));
-      }
+      await processPoints(pointsPreview);
     },
-    [pointsPreview, state.rawPoints],
+    [pointsPreview, state.rawPoints, processPoints],
   );
 
   return (
@@ -120,28 +130,39 @@ export default function GeoProcessorApp() {
         </p>
       </header>
 
-      <section className="card">
-        <div className="form-container">
-          <label htmlFor="points">Points (JSON)</label>
-          <textarea
-            id="points"
-            value={state.rawPoints}
-            onChange={(event) => setState((prev) => ({ ...prev, rawPoints: event.target.value }))}
-            aria-describedby="points-help"
-          />
-          <div id="points-help">
-            Valid example:
-            <pre>{DEFAULT_EXAMPLE}</pre>
+      {/* Input Cards Grid */}
+      <div className="cards-grid">
+        {/* JSON Input Card */}
+        <section className="card">
+          <h2>JSON Mode</h2>
+          <p className="subtitle">For developers and advanced users</p>
+          <div className="form-container">
+            <label htmlFor="points">Points (JSON)</label>
+            <textarea
+              id="points"
+              value={state.rawPoints}
+              onChange={(event) => setState((prev) => ({ ...prev, rawPoints: event.target.value }))}
+              aria-describedby="points-help"
+            />
+            <div id="points-help">
+              Valid example:
+              <pre>{DEFAULT_EXAMPLE}</pre>
+            </div>
+            <button
+              type="button"
+              onClick={handleSubmitJSON}
+              disabled={state.loading}
+            >
+              {state.loading ? "Processing..." : "Process"}
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={state.loading}
-          >
-            {state.loading ? "Processing..." : "Process"}
-          </button>
-        </div>
-      </section>
+        </section>
+
+        {/* Point Input Form Card */}
+        <section className="card">
+          <PointInputForm onProcess={processPoints} loading={state.loading} />
+        </section>
+      </div>
 
       {state.error && (
         <section className="card error" role="alert">
@@ -189,7 +210,7 @@ export default function GeoProcessorApp() {
           <h2>Output JSON</h2>
           <textarea value={JSON.stringify(state.result, null, 2)} readOnly />
           <h3>Summary</h3>
-          <pre className="summary-output">{centroidToText(state.result)}</pre>
+          <textarea value={centroidToText(state.result)} readOnly />
         </section>
       )}
     </>
