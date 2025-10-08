@@ -1,11 +1,11 @@
 # Geo Processor Monorepo
 
-Proyecto monorepo que aloja tres servicios coordinados:
-- `python-service`: servicio FastAPI que calcula centroides y bounds para colecciones de puntos geográficos.
-- `nest-api`: gateway NestJS (validación, caché y proxy hacia FastAPI).
-- `web`: frontend Next.js con Leaflet para visualización.
+Monorepo project hosting three coordinated services:
+- `python-service`: FastAPI service that calculates centroids and bounds for geographic point collections.
+- `nest-api`: NestJS gateway (validation, caching, and proxy to FastAPI).
+- `web`: Next.js frontend with Leaflet for visualization.
 
-## Estructura de carpetas
+## Folder Structure
 
 ```
 geo-processor/
@@ -50,39 +50,39 @@ geo-processor/
    └─ next-env.d.ts
 ```
 
-## Fase 1: Servicio FastAPI
+## Phase 1: FastAPI Service
 
-### Instalación y entorno local
+### Installation and Local Environment
 
 ```bash
-cd /home/luis/geo-processor/python-service
+cd python-service
 python3 -m venv .venv
 . .venv/bin/activate
 pip install -e .
 ```
 
-### Ejecutar tests
+### Run Tests
 
 ```bash
-cd /home/luis/geo-processor/python-service
+cd python-service
 . .venv/bin/activate
 pytest
 ```
 
-### Ejecutar el servicio
+### Run the Service
 
 ```bash
-cd /home/luis/geo-processor/python-service
+cd python-service
 . .venv/bin/activate
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Contrato de la API
+### API Contract
 
 - **Endpoint**: `POST /process`
 - **Input** (`application/json`):
 
-```
+```json
 {
   "points": [
     {"lat": 10.0, "lng": 20.0},
@@ -91,11 +91,11 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 }
 ```
 
-- **Errores 400**: mensaje claro cuando `points` falta, está vacío o contiene valores no numéricos.
+- **400 Errors**: Clear message when `points` is missing, empty, or contains non-numeric values.
 
-### Ejemplo curl
+### curl Example
 
-Solicitud:
+Request:
 
 ```bash
 curl -X POST http://localhost:8000/process \
@@ -109,62 +109,62 @@ curl -X POST http://localhost:8000/process \
   }'
 ```
 
-Respuesta:
+Response:
 
-```
+```json
 {
   "centroid": {"lat": 4.1666666667, "lng": 9.6666666667},
   "bounds": {"north": 10.0, "south": -5.0, "east": 20.0, "west": -3.5}
 }
 ```
 
-## Fase 2: Gateway NestJS
+## Phase 2: NestJS Gateway
 
-### Instalación y entorno local
+### Installation and Local Environment
 
 ```bash
-cd /home/luis/geo-processor/nest-api
+cd nest-api
 npm install
 ```
 
-### Variables de entorno
+### Environment Variables
 
-- `PYTHON_SERVICE_URL` (por defecto `http://localhost:8000`).
-- `NEST_CACHE_TTL` en segundos (por defecto `60`).
-- `CORS_ORIGINS` lista separada por comas (por defecto `http://localhost:3000`).
+- `PYTHON_SERVICE_URL` (default `http://localhost:8000`).
+- `NEST_CACHE_TTL` in seconds (default `60`).
+- `CORS_ORIGINS` comma-separated list (default `http://localhost:3000`).
 
-### Ejecutar en desarrollo
+### Run in Development
 
 ```bash
-cd /home/luis/geo-processor/nest-api
+cd nest-api
 npm run start:dev
 ```
 
-### Construir y ejecutar en producción local
+### Build and Run in Local Production
 
 ```bash
-cd /home/luis/geo-processor/nest-api
+cd nest-api
 npm run build
 node dist/main.js
 ```
 
-### Ejecutar tests
+### Run Tests
 
 ```bash
-cd /home/luis/geo-processor/nest-api
+cd nest-api
 npm test
 ```
 
-### Contrato del gateway
+### Gateway Contract
 
 - **Endpoint**: `POST /geo/process`
-- **Forward**: proxya cuerpo al FastAPI `/process`.
-- **Código 200**: proxy de respuesta exitosa.
-- **Errores 400**: respuestas de FastAPI se devuelven intactas.
-- **Errores 502**: fallos de red o códigos diferentes se reportan como `{"statusCode":502,"message":"Upstream error"}`.
-- **Caché**: TTL configurable; hash `sha256` del body como clave.
+- **Forward**: Proxies body to FastAPI `/process`.
+- **200 Code**: Proxies successful response.
+- **400 Errors**: FastAPI responses are returned intact.
+- **502 Errors**: Network failures or different status codes are reported as `{"statusCode":502,"message":"Upstream error"}`.
+- **Cache**: Configurable TTL; `sha256` hash of body as key.
 
-### Ejemplo `curl`
+### curl Example
 
 ```bash
 curl -X POST http://localhost:3001/geo/process \
@@ -178,75 +178,74 @@ curl -X POST http://localhost:3001/geo/process \
   }'
 ```
 
-Respuesta esperada:
+Expected response:
 
-```
+```json
 {
   "centroid": {"lat": 4.1666666667, "lng": 9.6666666667},
   "bounds": {"north": 10.0, "south": -5.0, "east": 20.0, "west": -3.5}
 }
 ```
 
-## Fase 3: Frontend Next.js
+## Phase 3: Next.js Frontend
 
-### Instalación y entorno local
+### Installation and Local Environment
 
 ```bash
-cd /home/luis/geo-processor/web
+cd web
 npm install
 ```
 
-### Variables de entorno
+### Environment Variables
 
-- `NEXT_PUBLIC_NEST_API_URL` (por defecto `http://localhost:3001`).
+- `NEXT_PUBLIC_NEST_API_URL` (default `http://localhost:3001`).
 
-### Ejecutar en desarrollo
+### Run in Development
 
 ```bash
-cd /home/luis/geo-processor/web
+cd web
 npm run dev
 ```
 
-### Build de producción
+### Production Build
 
 ```bash
-cd /home/luis/geo-processor/web
+cd web
 npm run build
 npm start
 ```
 
-### Flujo de uso
+### Usage Flow
 
-1. Levantar el backend (`python-service` en :8000 y `nest-api` en :3001).
-2. Ingresar un JSON con `points` en la UI (textarea).
-3. Presionar “Procesar” para llamar al gateway.
-4. Visualizar resultados numéricos y mapa con Leaflet (puntos, bounding box, centroid).
-5. Revisar el JSON de salida para depurar o compartir.
+1. Start the backend (`python-service` on :8000 and `nest-api` on :3001).
+2. Enter a JSON with `points` in the UI (textarea).
+3. Press "Process" to call the gateway.
+4. Visualize numeric results and map with Leaflet (points, bounding box, centroid).
+5. Review the output JSON for debugging or sharing.
 
 ## docker-compose
 
-Archivo `docker-compose.yml` listo para levantar toda la solución:
+`docker-compose.yml` file ready to launch the entire solution:
 
 ```bash
 docker compose up --build
 ```
 
-Servicios expuestos:
+Exposed services:
 
 - `python-service`: http://localhost:8000
-- `nest-api`: http://localhost:3001 (usa `python-service` interno)
-- `web`: http://localhost:3000 (consume NestJS)
+- `nest-api`: http://localhost:3001 (uses internal `python-service`)
+- `web`: http://localhost:3000 (consumes NestJS)
 
-Variables incluidas por defecto en el `docker-compose.yml`:
+Default variables included in `docker-compose.yml`:
 
 - `PYTHON_SERVICE_URL=http://python-service:8000`
 - `NEST_CACHE_TTL=60`
 - `CORS_ORIGINS=http://localhost:3000`
 - `NEXT_PUBLIC_NEST_API_URL=http://localhost:3001`
 
-## Próximos pasos
+## Next Steps
 
-- [ ] Documentar snapshots/screenshots opcionales.
+- [ ] Document optional snapshots/screenshots.
 
-Este README se irá actualizando conforme avancemos en las siguientes tareas.
-
+This README will be updated as we progress through the following tasks.
