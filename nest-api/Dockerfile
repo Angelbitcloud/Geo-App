@@ -1,14 +1,27 @@
-FROM node:20-slim
+FROM node:20 AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json ./
 
-RUN npm install
+RUN npm install && npm install -g typescript
 
 COPY . .
 
-RUN npm run build
+RUN npx tsc -p tsconfig.build.json
+
+FROM node:20-slim AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY package.json ./
+
+RUN npm install --omit=dev
+
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 3001
 
 CMD ["node", "dist/main.js"]
-

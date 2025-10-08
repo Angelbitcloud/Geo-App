@@ -48,8 +48,8 @@ function centroidToText(result: ApiResponse | null): string {
   if (!result) return "";
   const { centroid, bounds } = result;
   return [
-    `Centroid: lat=${centroid.lat.toFixed(6)} lng=${centroid.lng.toFixed(6)}`,
-    `Bounds: north=${bounds.north.toFixed(6)}, south=${bounds.south.toFixed(6)}, east=${bounds.east.toFixed(6)}, west=${bounds.west.toFixed(6)}`,
+    `Centroid:\nlat=${centroid.lat.toFixed(6)} lng=${centroid.lng.toFixed(6)}`,
+    `\nBounds:\nnorth=${bounds.north.toFixed(6)}, south=${bounds.south.toFixed(6)},\neast=${bounds.east.toFixed(6)}, west=${bounds.west.toFixed(6)}`,
   ].join("\n");
 }
 
@@ -64,8 +64,7 @@ export default function GeoProcessorApp() {
   const pointsPreview = useMemo(() => parsePoints(state.rawPoints), [state.rawPoints]);
 
   const handleSubmit = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
+    async () => {
       setState((prev) => ({ ...prev, loading: true, error: null }));
 
       try {
@@ -106,7 +105,7 @@ export default function GeoProcessorApp() {
       </header>
 
       <section className="card">
-        <form onSubmit={handleSubmit}>
+        <div className="form-container">
           <label htmlFor="points">Points (JSON)</label>
           <textarea
             id="points"
@@ -118,10 +117,14 @@ export default function GeoProcessorApp() {
             Valid example:
             <pre>{DEFAULT_EXAMPLE}</pre>
           </div>
-          <button type="submit" disabled={state.loading || !pointsPreview?.length}>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={state.loading || !pointsPreview?.length}
+          >
             {state.loading ? "Processing..." : "Process"}
           </button>
-        </form>
+        </div>
       </section>
 
       {state.error && (
@@ -170,7 +173,7 @@ export default function GeoProcessorApp() {
           <h2>Output JSON</h2>
           <textarea value={JSON.stringify(state.result, null, 2)} readOnly />
           <h3>Summary</h3>
-          <textarea value={centroidToText(state.result)} readOnly />
+          <pre className="summary-output">{centroidToText(state.result)}</pre>
         </section>
       )}
     </>

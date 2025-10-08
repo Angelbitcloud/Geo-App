@@ -1,24 +1,24 @@
-FROM node:20-slim AS deps
+FROM node:20 AS deps
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+COPY package.json ./
+RUN npm install && npm install -g next
 
-FROM node:20-slim AS builder
+FROM node:20 AS builder
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN npm run build
+RUN npx --yes next build
 
 FROM node:20-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-COPY --from=builder /app/package*.json ./
+COPY package.json ./
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/node_modules ./node_modules
@@ -27,4 +27,3 @@ COPY --from=builder /app/next.config.js ./
 EXPOSE 3000
 
 CMD ["npm", "start"]
-
