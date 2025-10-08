@@ -1,0 +1,107 @@
+# ============================================
+# MONOREPO GEO-PROCESSOR
+# ============================================
+
+# ============================================
+# Node.js (nest-api + web)
+# ============================================
+**/node_modules/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/pnpm-debug.log*
+**/.npm/
+**/.yarn/
+
+# Lockfiles: MANTENER package-lock.json para reproducibilidad
+# NO ignorar: package-lock.json (necesario para prueba técnica)
+
+# ============================================
+# Python (python-service)
+# ============================================
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/*.so
+**/.Python
+
+# Virtual environments - CUALQUIER UBICACIÓN
+**/.venv/
+**/venv/
+**/env/
+**/ENV/
+.venv/
+venv/
+env/
+ENV/
+
+# Python build artifacts
+**/*.egg-info/
+**/dist/
+**/build/
+**/.pytest_cache/
+**/.coverage
+**/htmlcov/
+
+# ============================================
+# Build outputs
+# ============================================
+# NestJS
+nest-api/dist/
+
+# Next.js
+web/.next/
+web/out/
+web/.vercel/
+
+# TypeScript
+**/*.tsbuildinfo
+
+# ============================================
+# Environment variables
+# ============================================
+**/.env
+**/.env.local
+**/.env.*.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+
+# ============================================
+# IDE & Editors
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# ============================================
+# OS
+# ============================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ============================================
+# Logs
+# ============================================
+**/*.log
+**/logs/
+
+# ============================================
+# Docker (opcional)
+# ============================================
+# Si no quieres ignorar nada de Docker, comenta estas líneas
+# **/.dockerignore
+
+# ============================================
+# Cache & Temp
+# ============================================
+**/.cache/
+**/.eslintcache
+**/.turbo/
+**/tmp/
+**/temp/

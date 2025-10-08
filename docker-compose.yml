@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  python-service:
+    build:
+      context: ./python-service
+    container_name: geo-python
+    ports:
+      - "8000:8000"
+    environment:
+      - UVICORN_HOST=0.0.0.0
+      - UVICORN_PORT=8000
+
+  nest-api:
+    build:
+      context: ./nest-api
+    container_name: geo-nest
+    depends_on:
+      - python-service
+    ports:
+      - "3001:3001"
+    environment:
+      - PYTHON_SERVICE_URL=http://python-service:8000
+      - NEST_CACHE_TTL=60
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:3001,http://localhost:* 
+
+  web:
+    build:
+      context: ./web
+    container_name: geo-web
+    depends_on:
+      - nest-api
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_NEST_API_URL=http://localhost:3001
+
