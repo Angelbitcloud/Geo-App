@@ -15,7 +15,7 @@ interface FormState {
 
 const MapView = dynamic(() => import("./MapView").then((mod) => mod.MapView), {
   ssr: false,
-  loading: () => <div className="map-container">Cargando mapa...</div>,
+  loading: () => <div className="map-container">Loading map...</div>,
 });
 
 const DEFAULT_EXAMPLE = JSON.stringify(
@@ -77,18 +77,18 @@ export default function GeoProcessorApp() {
 
         if (!response.ok) {
           const payload = await response.json().catch(() => ({}));
-          const message = payload?.detail ?? payload?.message ?? "Error desconocido";
+          const message = payload?.detail ?? payload?.message ?? "Unknown error";
           throw new Error(typeof message === "string" ? message : JSON.stringify(payload));
         }
 
         const payload = (await response.json()) as ApiResponse;
         setState((prev) => ({ ...prev, result: payload, loading: false }));
       } catch (error) {
-        console.error("Error al llamar al gateway", error);
+        console.error("Error calling gateway", error);
         setState((prev) => ({
           ...prev,
           loading: false,
-          error: error instanceof Error ? error.message : "Error desconocido",
+          error: error instanceof Error ? error.message : "Unknown error",
         }));
       }
     },
@@ -100,14 +100,14 @@ export default function GeoProcessorApp() {
       <header>
         <h1>Geo Processor UI</h1>
         <p>
-          Ingrese coordenadas y obtenga el centroid y bounding box calculados por el gateway NestJS y el
-          servicio FastAPI.
+          Enter coordinates and get the centroid and bounding box calculated by the NestJS gateway and the
+          FastAPI service.
         </p>
       </header>
 
       <section className="card">
         <form onSubmit={handleSubmit}>
-          <label htmlFor="points">Puntos (JSON)</label>
+          <label htmlFor="points">Points (JSON)</label>
           <textarea
             id="points"
             value={state.rawPoints}
@@ -115,11 +115,11 @@ export default function GeoProcessorApp() {
             aria-describedby="points-help"
           />
           <div id="points-help">
-            Ejemplo válido:
+            Valid example:
             <pre>{DEFAULT_EXAMPLE}</pre>
           </div>
           <button type="submit" disabled={state.loading || !pointsPreview?.length}>
-            {state.loading ? "Procesando..." : "Procesar"}
+            {state.loading ? "Processing..." : "Process"}
           </button>
         </form>
       </section>
@@ -132,7 +132,7 @@ export default function GeoProcessorApp() {
 
       {state.result && (
         <section className="card success">
-          <h2>Resultado</h2>
+          <h2>Result</h2>
           <div className="results-grid">
             <div>
               <h3>Centroid</h3>
@@ -151,7 +151,7 @@ export default function GeoProcessorApp() {
       )}
 
       <section className="card">
-        <h2>Mapa</h2>
+        <h2>Map</h2>
         {state.result ? (
           <MapView
             points={pointsPreview ?? []}
@@ -160,16 +160,16 @@ export default function GeoProcessorApp() {
           />
         ) : (
           <div className="map-container" aria-hidden>
-            <p style={{ padding: "1rem" }}>Procesa un conjunto de puntos para visualizar el mapa.</p>
+            <p style={{ padding: "1rem" }}>Process a set of points to visualize the map.</p>
           </div>
         )}
       </section>
 
       {state.result && (
         <section className="card">
-          <h2>JSON de salida</h2>
+          <h2>Output JSON</h2>
           <textarea value={JSON.stringify(state.result, null, 2)} readOnly />
-          <h3>Resumen</h3>
+          <h3>Summary</h3>
           <textarea value={centroidToText(state.result)} readOnly />
         </section>
       )}

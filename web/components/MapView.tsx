@@ -114,7 +114,7 @@ function MapViewComponent({ points, bounds, centroid }: MapViewProps) {
             pathOptions={{ color: "#f97316", weight: 2, fillOpacity: 0.8 }}
           >
             <Popup>
-              Punto {idx + 1}
+              Point {idx + 1}
               <br />
               Lat: {point.lat.toFixed(6)}
               <br />
