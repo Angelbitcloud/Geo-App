@@ -65,6 +65,22 @@ export default function GeoProcessorApp() {
 
   const handleSubmit = useCallback(
     async () => {
+      if (!state.rawPoints.trim()) {
+        setState((prev) => ({
+          ...prev,
+          error: "Please enter some JSON data. The textarea cannot be empty.",
+        }));
+        return;
+      }
+
+      if (!pointsPreview || pointsPreview.length === 0) {
+        setState((prev) => ({
+          ...prev,
+          error: 'Invalid JSON format. Expected: {"points": [{"lat": number, "lng": number}, ...]}',
+        }));
+        return;
+      }
+
       setState((prev) => ({ ...prev, loading: true, error: null }));
 
       try {
@@ -91,7 +107,7 @@ export default function GeoProcessorApp() {
         }));
       }
     },
-    [pointsPreview],
+    [pointsPreview, state.rawPoints],
   );
 
   return (
@@ -120,7 +136,7 @@ export default function GeoProcessorApp() {
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={state.loading || !pointsPreview?.length}
+            disabled={state.loading}
           >
             {state.loading ? "Processing..." : "Process"}
           </button>
