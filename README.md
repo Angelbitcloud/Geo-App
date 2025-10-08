@@ -243,9 +243,3 @@ Default variables included in `docker-compose.yml`:
 - `NEST_CACHE_TTL=60`
 - `CORS_ORIGINS=http://localhost:3000`
 - `NEXT_PUBLIC_NEST_API_URL=http://localhost:3001`
-
-## Next Steps
-
-- [ ] Document optional snapshots/screenshots.
-
-This README will be updated as we progress through the following tasks.
