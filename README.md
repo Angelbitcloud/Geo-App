@@ -39,6 +39,10 @@ Monorepo project hosting three coordinated services:
 geo-processor/
 ├─ README.md
 ├─ docker-compose.yml
+├─ scripts/
+│  ├─ test.bat
+│  ├─ test-coverage.bat
+│  └─ test-watch.bat
 ├─ python-service/
 │  ├─ app/
 │  │  ├─ __init__.py
@@ -71,12 +75,18 @@ geo-processor/
    │  ├─ GeoProcessorApp.tsx
    │  ├─ MapView.tsx
    │  └─ PointInputForm.tsx
+   ├─ __tests__/
+   │  ├─ GeoProcessorApp.test.tsx
+   │  └─ PointInputForm.test.tsx
    ├─ public/
    │  └─ favicon.ico
    ├─ package.json
    ├─ tsconfig.json
    ├─ next.config.js
-   └─ next-env.d.ts
+   ├─ next-env.d.ts
+   ├─ jest.config.js
+   ├─ jest.setup.js
+   └─ Dockerfile.test
 ```
 
 ## Phase 1: FastAPI Service
