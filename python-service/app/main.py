@@ -10,7 +10,6 @@ app = FastAPI(
     description="Stateless processor for lat/lng arrays: bounds + centroid",
 )
 
-# CORS (permitir a Nest/Next en desarrollo)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,10 +17,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mapear errores de validación (422) a 400 con mensaje claro (requisito del contrato)
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(_, exc: RequestValidationError):
-    # Mensaje genérico y claro según requisitos
     return JSONResponse(status_code=400, content={"detail": "points must be a non-empty array of {lat,lng}."})
 
 @app.exception_handler(ValueError)
@@ -44,7 +41,6 @@ def process_points(payload: PointsRequest):
     lats = [p.lat for p in pts]
     lngs = [p.lng for p in pts]
 
-    # Chequeo defensivo adicional (aunque Pydantic ya tipa)
     if any(v is None for v in lats + lngs):
         raise HTTPException(status_code=400, detail="All points must include numeric lat and lng.")
 
