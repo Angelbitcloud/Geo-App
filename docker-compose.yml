@@ -33,3 +33,16 @@ services:
     environment:
       - NEXT_PUBLIC_NEST_API_URL=http://localhost:3001
 
+  # Test service for running frontend tests
+  web-test:
+    build:
+      context: ./web
+      dockerfile: Dockerfile.test
+    container_name: geo-web-test
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+    command: npm test
+    profiles:
+      - test
+

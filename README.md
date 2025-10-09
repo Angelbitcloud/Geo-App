@@ -3,7 +3,35 @@
 Monorepo project hosting three coordinated services:
 - `python-service`: FastAPI service that calculates centroids and bounds for geographic point collections.
 - `nest-api`: NestJS gateway (validation, caching, and proxy to FastAPI).
-- `web`: Next.js frontend with Leaflet for visualization.
+- `web`: Next.js frontend with Leaflet for visualization and dual input modes.
+
+## ✨ Key Features
+
+### 🎨 Dual Input Modes
+- **JSON Mode**: Advanced textarea for developers to paste JSON directly
+- **Form Mode**: User-friendly interface with individual lat/lng input fields
+
+### 🗺️ Interactive Visualization
+- Real-time Leaflet map with points, centroid marker, and bounding box
+- Integrated results display below the map
+- Responsive design for desktop and mobile
+
+### ✅ Comprehensive Validation
+- Real-time client-side validation with inline error messages
+- Range validation (lat: -90 to 90, lng: -180 to 180)
+- Type validation and error prevention
+
+### 📊 Point Management
+- Add, edit, and delete individual points
+- Bulk operations (select multiple, delete selected, clear all)
+- Interactive table with visual feedback
+- Maximum 1000 points limit
+
+### 🎯 Professional UI/UX
+- Dark theme with gradient buttons
+- Bordered result cards with 2x2 grid layout
+- Smooth animations and transitions
+- Accessibility-focused design
 
 ## Folder Structure
 
@@ -41,7 +69,8 @@ geo-processor/
    │  └─ globals.css
    ├─ components/
    │  ├─ GeoProcessorApp.tsx
-   │  └─ MapView.tsx
+   │  ├─ MapView.tsx
+   │  └─ PointInputForm.tsx
    ├─ public/
    │  └─ favicon.ico
    ├─ package.json
@@ -215,13 +244,226 @@ npm run build
 npm start
 ```
 
+### 🎨 Frontend Features
+
+#### **Dual Input Modes**
+
+The frontend offers two ways to input geographic points:
+
+##### 1. JSON Mode (Left Card)
+- **Target Users**: Developers and advanced users
+- **Features**:
+  - Direct JSON textarea input
+  - Fast bulk point entry
+  - Syntax validation
+  - Example JSON provided
+- **Format**:
+  ```json
+  {
+    "points": [
+      {"lat": 19.4326, "lng": -99.1332},
+      {"lat": 40.7128, "lng": -74.0060},
+      {"lat": 35.6895, "lng": 139.6917}
+    ]
+  }
+  ```
+
+##### 2. Form Mode (Right Card)
+- **Target Users**: Regular users
+- **Features**:
+  - Individual latitude/longitude input fields
+  - Real-time validation with inline error messages
+  - Interactive points table with edit/delete actions
+  - Bulk operations (select, delete selected, clear all)
+  - Visual feedback and error prevention
+  - Maximum 1000 points limit
+- **Validation Rules**:
+  - Latitude: -90 to 90 (numeric)
+  - Longitude: -180 to 180 (numeric)
+  - 6 decimal precision
+  - Required fields
+
+#### **Point Management Table**
+
+When using Form Mode, points are displayed in an interactive table:
+
+| Feature | Description |
+|---------|-------------|
+| **Checkboxes** | Select individual or all points |
+| **Edit** | Click ✏️ to modify point coordinates |
+| **Delete** | Click 🗑️ to remove individual points |
+| **Bulk Delete** | Delete multiple selected points at once |
+| **Clear All** | Remove all points with confirmation |
+| **Visual Feedback** | Row highlighting on hover and during edit |
+
+#### **Map Visualization**
+
+After processing points, the map displays:
+
+- **Interactive Leaflet Map**: Pan, zoom, and explore
+- **Point Markers**: Blue circles for each coordinate
+- **Centroid Marker**: Red marker showing the calculated center
+- **Bounding Box**: Rectangle showing the geographic bounds
+- **Popups**: Click markers to see exact coordinates
+
+#### **Results Display**
+
+Results are integrated below the map in a clean, bordered layout:
+
+```
+┌─────────────────────────────────────────┐
+│              Map Card                    │
+├─────────────────────────────────────────┤
+│         [Interactive Map]                │
+├─────────────────────────────────────────┤
+│   ┌─────────────┐    ┌──────────────┐  │
+│   │  CENTROID   │    │    BOUNDS    │  │
+│   ├─────────────┤    ├──────┬───────┤  │
+│   │    LAT:     │    │NORTH │ SOUTH │  │
+│   │  40.712800  │    ├──────┼───────┤  │
+│   ├─────────────┤    │ EAST │ WEST  │  │
+│   │    LNG:     │    └──────┴───────┘  │
+│   │ -74.006000  │                       │
+│   └─────────────┘                       │
+└─────────────────────────────────────────┘
+```
+
+**Features**:
+- Centered layout with 2x2 grid for bounds
+- 3px borders with consistent styling
+- Large, monospace values for precision
+- Uppercase labels for clarity
+- Responsive design (stacks on mobile)
+
+#### **Output JSON**
+
+A separate card displays:
+- Full JSON response from the API
+- Formatted summary text
+- Read-only textareas for easy copying
+
 ### Usage Flow
 
-1. Start the backend (`python-service` on :8000 and `nest-api` on :3001).
-2. Enter a JSON with `points` in the UI (textarea).
-3. Press "Process" to call the gateway.
-4. Visualize numeric results and map with Leaflet (points, bounding box, centroid).
-5. Review the output JSON for debugging or sharing.
+#### **Option 1: JSON Mode**
+1. Start the backend (`python-service` on :8000 and `nest-api` on :3001)
+2. Paste JSON with `points` in the textarea (left card)
+3. Click "Process" to call the gateway
+4. View results: map with visualization and numeric data below
+5. Review the output JSON for debugging or sharing
+
+#### **Option 2: Form Mode**
+1. Start the backend services
+2. Enter latitude and longitude in the input fields (right card)
+3. Click "Add Point" to add to the table
+4. Repeat to add multiple points
+5. Edit or delete points as needed using table actions
+6. Click "Calculate (X points)" to process
+7. View results: map with visualization and numeric data below
+8. Review the output JSON for debugging or sharing
+
+### 🎨 UI/UX Highlights
+
+- **Dark Theme**: Professional dark color scheme
+- **Gradient Buttons**: Eye-catching cyan-purple-pink gradients
+- **Responsive Layout**: 2-column grid on desktop, single column on mobile
+- **Smooth Animations**: Hover effects and transitions
+- **Error Handling**: Clear, actionable error messages
+- **Loading States**: Visual feedback during API calls
+- **Accessibility**: Proper labels, ARIA attributes, keyboard navigation
+- **Confirmation Dialogs**: Prevent accidental data loss
+
+### 🔧 Technical Details
+
+**Components**:
+- `GeoProcessorApp.tsx`: Main application logic and state management
+- `MapView.tsx`: Leaflet map integration with React
+- `PointInputForm.tsx`: User-friendly point input interface
+
+**State Management**:
+- React hooks (useState, useCallback, useMemo)
+- Shared processing logic between input modes
+- Optimized re-renders with memoization
+
+**Styling**:
+- CSS modules with global styles
+- Flexbox and Grid layouts
+- Media queries for responsiveness
+- CSS variables for theming
+
+### 🧪 Testing
+
+The frontend includes comprehensive unit tests using Jest and React Testing Library.
+
+#### **Test Coverage**
+
+- **GeoProcessorApp**: Main application logic, API integration, error handling
+- **MapView**: Map rendering, markers, bounds, and popups
+- **PointInputForm**: Form validation, point management, bulk operations
+
+#### **Running Tests with Docker**
+
+Tests run in an isolated Docker container with all dependencies:
+
+```bash
+# Run all tests
+docker-compose --profile test run --rm web-test npm test
+
+# Run tests with coverage
+docker-compose --profile test run --rm web-test npm run test:coverage
+
+# Run tests in watch mode (for development)
+docker-compose --profile test run --rm web-test npm run test:watch
+```
+
+#### **Using Test Scripts (Windows)**
+
+Convenient batch scripts are provided in the `scripts/` directory:
+
+```bash
+# Run all tests
+.\scripts\test.bat
+
+# Run with coverage
+.\scripts\test-coverage.bat
+
+# Run in watch mode
+.\scripts\test-watch.bat
+```
+
+#### **Test Configuration**
+
+- **Jest Config**: `web/jest.config.js`
+- **Setup File**: `web/jest.setup.js`
+- **Test Files**: `web/__tests__/*.test.tsx`
+
+#### **What's Tested**
+
+✅ **Component Rendering**
+- Initial state and UI elements
+- Conditional rendering based on state
+- Dynamic content updates
+
+✅ **User Interactions**
+- Form submissions and validations
+- Button clicks and input changes
+- Point management (add, edit, delete)
+- Bulk operations (select all, delete selected)
+
+✅ **API Integration**
+- Successful API calls and responses
+- Error handling and error messages
+- Loading states
+
+✅ **Map Functionality**
+- Map rendering with points
+- Centroid and bounds display
+- Marker popups and interactions
+
+✅ **Edge Cases**
+- Empty states
+- Invalid inputs
+- Network failures
+- Maximum limits (1000 points)
 
 ## docker-compose
 
